@@ -11,15 +11,15 @@
           pkgs = import nixpkgs {
             inherit system;
           };
-          quicktype =  name : version : lang : pkgs.writeShellScriptBin "${name}_${lang}" ''
-              ${pkgs.quicktype}/bin/quicktype -s schema ./schemas/${name}/${version}/schema.json -o models.${lang};
+          quicktype =  name : lang : pkgs.writeShellScriptBin "${name}_${lang}" ''
+              ${pkgs.quicktype}/bin/quicktype -s schema ./schemas/${name}/schema.json -o models.${lang};
               echo 'New model is ready at models.${lang}';
           '';
         in
         {
-          packages.pokedex.v0_1_0.go = (quicktype "pokedex" "v0.1.0" "go");
-          packages.pokedex.v0_1_0.swift = (quicktype "pokedex" "v0.1.0" "swift");
-          packages.pokedex.v0_1_0.ts = (quicktype "pokedex" "v0.1.0" "ts");
+          packages.pokedex.go = (quicktype "pokedex" "go");
+          packages.pokedex.swift = (quicktype "pokedex" "swift");
+          packages.pokedex.ts = (quicktype "pokedex" "ts");
         })
     );
 }
