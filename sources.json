@@ -1,0 +1,47 @@
+{
+  "languages": {
+    "go": "go"
+  },
+  "schemas": {
+    "petstore" : {
+      "repo_url": "https://github.com/OAI/OpenAPI-Specification.git",
+      "schema_path": "examples/v3.0/petstore.yaml",
+      "type": "openapi",
+      "ref": "main",
+      "rev": "b02c5487e25710909c80e3686ea350c50139ddcb",
+      "tool": "oapi-codegen",
+      "args": "-package api -generate types,client -o petstore.gen.go",
+      "_comment": "Generate client and models from a public openapi spec."
+    },
+    "jokes": {
+      "repo_url": "ssh://git@github.com/tfadeyi/joke-api.git",
+      "schema_path": "api.yaml",
+      "type": "openapi",
+      "ref": "main",
+      "rev": "40e531b1357dd8d2c183b39076a1d92dae64a51b",
+      "tool": "oapi-codegen",
+      "args": "-package api -generate types,client -o jokes.gen.go",
+      "_comment": "Generate client and models from a private openapi spec."
+    },
+    "pokedex": {
+      "repo_url": "https://github.com/tfadeyi/schema2nix",
+      "schema_path": "schemas/pokedex/schema.json",
+      "ref": "main",
+      "rev": "77c2e514431ee3bb9789b983306e04b4ef16ca7d",
+      "tool": "quicktype",
+      "type": "jsonschema",
+      "args": "-s schema",
+      "_comment": "generate types for the current jsonschema"
+    },
+    "error_fyi": {
+      "repo_url": "https://github.com/error-fyi/fyi-schema",
+      "schema_path": "v0.1.0/schema.json",
+      "type": "jsonschema",
+      "ref": "main",
+      "rev": "aaeb850b486401dbe4d28ee1a29a355e3ca02fd0",
+      "tool": "quicktype",
+      "args": "-s schema",
+      "_comment": "generate types for a remote jsonschema"
+    }
+  }
+}

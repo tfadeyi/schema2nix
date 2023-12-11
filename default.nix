@@ -3,16 +3,20 @@
   system ? builtins.currentSystem,
 }: let
   inherit (pkgs) lib;
-  sources = builtins.fromJSON (lib.strings.fileContents ./source.json);
+  sources = builtins.fromJSON (lib.strings.fileContents ./sources.json);
 
-  # mkBinaryInstall makes a derivation that installs Zig from a binary.
-  mkBinaryInstall = {
-    language,
-    name,
-    schema_path,
-    repo_url,
-    rev,
-    ref
+  # mkCodegen makes a derivation that pull the repo containing the schema,`schema_path`, and installs the codegen `tool`
+  # specified by the source and runs it against the schema_path. Using the `args` defined in the sources.json
+  mkCodegen = {
+    language, # certain tools support generating multiple languages
+    name, # name of the package
+    schema_path, # local/remote path of the schema, i.e: api/api.yaml
+    repo_url, # url of the repo containing the schema
+    rev, # revision of the repo, usually a commit SHA
+    ref, # branch or tag to pull
+    type, # schema type (openapi, jsonschema)
+    tool, # name of the tool to run against the schema (must be present in https://search.nixos.org/packages)
+    args # arguments to pass to the tool
   }:
   let
     content = pkgs.stdenv.mkDerivation {
@@ -22,34 +26,38 @@
           ref = ref;
           rev = rev;
       };
-      buildInput = [ pkgs.openssh ];
-      version = "v0.1.0";
+      version = rev;
+
       dontConfigure = true;
       dontBuild = true;
       dontFixup = true;
+
       installPhase = ''
-        mkdir -p $out
-        cp ${schema_path} $out/schema.json
+        mkdir -p $out/$(dirname ${schema_path})
+        cp ${schema_path} $out/$(dirname ${schema_path})
       '';
     };
     in
-    pkgs.writeShellScriptBin "${name}_${language}" ''
-          ${pkgs.quicktype}/bin/quicktype -s schema ${content}/schema.json -o models.${language};
-          echo 'New model is ready at models.${language}';
-    '';
-#https://github.com/error-fyi/fyi-schema/archive/refs/tags/v0.1.0.tar.gz
-#https://github.com/tfadeyi/fyi-schema/archive/v0.1.0.tar.gz
-  # The master packages
-  masterPackages =
+    if type == "openapi" # openapi codegen
+     then pkgs.writeShellScriptBin "${name}_${language}" ''
+          ${pkgs.${tool}}/bin/${tool} ${args} ${content}/${schema_path};
+          echo 'Done';
+          ''
+     else # default to jsoschema model generator
+        pkgs.writeShellScriptBin "${name}_${language}" ''
+        ${pkgs.${tool}}/bin/${tool} ${args} ${content}/${schema_path} -o models.${language};
+        echo 'Done';
+        '';
+
+  schemaPackages =
     lib.attrsets.mapAttrs (
       key: language:
          lib.attrsets.mapAttrs' (
             name: v:
               lib.attrsets.nameValuePair(name)
-                (mkBinaryInstall {inherit language name; inherit (v) schema_path repo_url rev ref; })) sources.master
-    ) { go = "go"; ts = "ts"; swift = "swift"; };
+                (mkCodegen {inherit language name; inherit (v) schema_path repo_url rev ref type tool args; })) sources.schemas
+    ) sources.languages; # if the codegen tool supports multiple langs you can list them here
 
 in
-  # We want the packages but also add a "default" that just points to the
-  # latest released version.
-  masterPackages // {"default" = masterPackages.go.pokedex;}
+  # We want the packages but also add a "default" that just points to an existing derivation
+  schemaPackages // {"default" = schemaPackages.go.petstore;}
