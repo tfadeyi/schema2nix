@@ -17,9 +17,7 @@
           '';
         in
         {
-          packages.pokedex.go = (quicktype "pokedex" "go");
-          packages.pokedex.swift = (quicktype "pokedex" "swift");
-          packages.pokedex.ts = (quicktype "pokedex" "ts");
+           packages = import ./default.nix {inherit system pkgs;};
         })
     );
 }

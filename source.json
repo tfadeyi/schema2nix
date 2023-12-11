@@ -1,0 +1,16 @@
+{
+  "master": {
+    "pokedex": {
+      "repo_url": "ssh://git@github.com/tfadeyi/schema2nix.git",
+      "schema_path": "schemas/pokedex/schema.json",
+      "ref": "main",
+      "rev": "596e270a9d1b7b9291869ece696c0b948aaa0dce"
+    },
+    "fyi_schema": {
+      "repo_url": "https://github.com/error-fyi/fyi-schema",
+      "schema_path": "v0.1.0/schema.json",
+      "ref": "main",
+      "rev": "aaeb850b486401dbe4d28ee1a29a355e3ca02fd0"
+    }
+  }
+}
